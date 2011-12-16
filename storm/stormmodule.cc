@@ -15,8 +15,8 @@ static PyObject *StormError;
 static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
-	int priority = 0;
-	int flags = 0;
+	int priority;
+	int flags;
 	bool result;
 
 	if (!PyArg_ParseTuple(args, "sii:SFileOpenArchive", &name, &priority, &flags)) {
