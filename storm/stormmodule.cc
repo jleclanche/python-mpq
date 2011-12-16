@@ -45,9 +45,32 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *filename;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "is:SFileHasFile", &mpq, &filename)) {
+		return NULL;
+	}
+	result = SFileHasFile(mpq, filename);
+
+	if (!result) {
+		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+			Py_RETURN_FALSE;
+		} else {
+			PyErr_SetString(StormError, "Error searching for file");
+			return NULL;
+		}
+	}
+
+	Py_RETURN_TRUE;
+}
+
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open a MPQ archive."},
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close a MPQ archive."},
+	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within a MPQ archive."},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
