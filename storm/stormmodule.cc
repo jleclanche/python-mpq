@@ -77,6 +77,44 @@ static PyObject * Storm_SFileOpenFileEx(PyObject *self, PyObject *args) {
 	return Py_BuildValue("l", file);
 }
 
+static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
+	HANDLE file = NULL;
+	unsigned int sizeLow;
+	unsigned int sizeHigh;
+
+	if (!PyArg_ParseTuple(args, "i:SFileGetFileSize", &file)) {
+		return NULL;
+	}
+	sizeLow = SFileGetFileSize(file, &sizeHigh);
+
+	if (sizeLow == SFILE_INVALID_SIZE) {
+		PyErr_SetString(StormError, "Error searching for file");
+		return NULL;
+	}
+
+	return Py_BuildValue("l", sizeLow | sizeHigh);
+}
+
+static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
+	HANDLE file = NULL;
+	unsigned long offset;
+	int whence;
+	int posLow;
+	int posHigh;
+	unsigned int result;
+
+	if (!PyArg_ParseTuple(args, "iii:SFileSetFilePointer", &file, &offset, &whence)) {
+		return NULL;
+	}
+
+	posLow = (unsigned int) offset;
+	posHigh = (unsigned int)(offset >> 32);
+
+	result = SFileSetFilePointer(file, posLow, &posHigh, whence);
+
+	Py_RETURN_NONE;
+}
+
 static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
@@ -144,10 +182,14 @@ static PyObject * Storm_SFileCloseFile(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open a MPQ archive."},
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close a MPQ archive."},
+
 	{"SFileOpenFileEx", Storm_SFileOpenFileEx, METH_VARARGS, "Open a file from a MPQ archive."},
+	{"SFileGetFileSize", Storm_SFileGetFileSize, METH_VARARGS, "Retrieve the size of a file within a MPQ archive"},
+	{"SFileSetFilePointer", Storm_SFileSetFilePointer, METH_VARARGS, "Seeks to a position within archive file"},
 	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file."},
 	{"SFileReadFile", Storm_SFileReadFile, METH_VARARGS, "Reads bytes in an open file."},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within a MPQ archive."},
