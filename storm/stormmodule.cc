@@ -99,6 +99,34 @@ static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
 	Py_RETURN_TRUE;
 }
 
+static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
+	HANDLE file = NULL;
+	char * buffer;
+	unsigned int size;
+	unsigned int bytesRead;
+	void * overlapped = 0;
+	bool result;
+	PyObject * ret;
+
+	if (!PyArg_ParseTuple(args, "ii:SFileReadFile", &file, &size)) {
+		return NULL;
+	}
+
+	buffer = (char*)malloc(size);
+
+	result = SFileReadFile(file, buffer, size, &bytesRead, &overlapped);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error reading file");
+		return NULL;
+	}
+
+	ret = Py_BuildValue("s#", buffer, bytesRead);
+	free(buffer);
+
+	return ret;
+}
+
 static PyObject * Storm_SFileCloseFile(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 
@@ -121,6 +149,7 @@ static PyMethodDef StormMethods[] = {
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close a MPQ archive."},
 	{"SFileOpenFileEx", Storm_SFileOpenFileEx, METH_VARARGS, "Open a file from a MPQ archive."},
 	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file."},
+	{"SFileReadFile", Storm_SFileReadFile, METH_VARARGS, "Reads bytes in an open file."},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within a MPQ archive."},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
