@@ -115,28 +115,6 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
-static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
-	HANDLE mpq = NULL;
-	char *name;
-	bool result;
-
-	if (!PyArg_ParseTuple(args, "is:SFileHasFile", &mpq, &name)) {
-		return NULL;
-	}
-	result = SFileHasFile(mpq, name);
-
-	if (!result) {
-		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
-			Py_RETURN_FALSE;
-		} else {
-			PyErr_SetString(StormError, "Error searching for file");
-			return NULL;
-		}
-	}
-
-	Py_RETURN_TRUE;
-}
-
 static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	char * buffer;
@@ -182,6 +160,47 @@ static PyObject * Storm_SFileCloseFile(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *name;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "is:SFileHasFile", &mpq, &name)) {
+		return NULL;
+	}
+	result = SFileHasFile(mpq, name);
+
+	if (!result) {
+		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+			Py_RETURN_FALSE;
+		} else {
+			PyErr_SetString(StormError, "Error searching for file");
+			return NULL;
+		}
+	}
+
+	Py_RETURN_TRUE;
+}
+
+static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *name;
+	char *localName;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "iss:SFileExtractFile", &mpq, &name, &localName)) {
+		return NULL;
+	}
+	result = SFileExtractFile(mpq, name, localName);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error extracting file");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+}
+
 
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open a MPQ archive."},
@@ -190,9 +209,10 @@ static PyMethodDef StormMethods[] = {
 	{"SFileOpenFileEx", Storm_SFileOpenFileEx, METH_VARARGS, "Open a file from a MPQ archive."},
 	{"SFileGetFileSize", Storm_SFileGetFileSize, METH_VARARGS, "Retrieve the size of a file within a MPQ archive"},
 	{"SFileSetFilePointer", Storm_SFileSetFilePointer, METH_VARARGS, "Seeks to a position within archive file"},
-	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file."},
 	{"SFileReadFile", Storm_SFileReadFile, METH_VARARGS, "Reads bytes in an open file."},
+	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file."},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within a MPQ archive."},
+	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from a MPQ archive to the local drive"},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
