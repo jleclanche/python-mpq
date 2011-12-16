@@ -8,6 +8,10 @@ extern "C" {
 
 static PyObject *StormError;
 
+/*
+ * Manipulating MPQ archives
+ */
+
 static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
@@ -45,15 +49,43 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
-static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
+/*
+ * Using Patched archives
+ */
+
+/*
+ * Reading Files
+ */
+
+static PyObject * Storm_SFileOpenFileEx(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-	char *filename;
+	char *name;
+	int scope = 0;
+	HANDLE file = NULL;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "is:SFileHasFile", &mpq, &filename)) {
+	if (!PyArg_ParseTuple(args, "isi:SFileOpenFileEx", &mpq, &name, &scope)) {
 		return NULL;
 	}
-	result = SFileHasFile(mpq, filename);
+	result = SFileOpenFileEx(mpq, name, scope, &file);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error opening file");
+		return NULL;
+	}
+
+	return Py_BuildValue("l", file);
+}
+
+static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *name;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "is:SFileHasFile", &mpq, &name)) {
+		return NULL;
+	}
+	result = SFileHasFile(mpq, name);
 
 	if (!result) {
 		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
@@ -70,6 +102,7 @@ static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open a MPQ archive."},
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close a MPQ archive."},
+	{"SFileOpenFileEx", Storm_SFileOpenFileEx, METH_VARARGS, "Open a file from a MPQ archive."},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within a MPQ archive."},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
