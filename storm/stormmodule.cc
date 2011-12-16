@@ -34,8 +34,8 @@ static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-
 	bool result;
+
 	if (!PyArg_ParseTuple(args, "i:SFileCloseArchive", &mpq)) {
 		return NULL;
 	}
@@ -52,6 +52,26 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 /*
  * Using Patched archives
  */
+
+static PyObject * Storm_SFileOpenPatchArchive(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *name;
+	char *prefix;
+	int flags;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "issi:SFileIsPatchedArchive", &mpq, &name, &prefix, &flags)) {
+		return NULL;
+	}
+	result = SFileOpenPatchArchive(mpq, name, prefix, flags);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Could not patch archive");
+		return NULL;
+	}
+
+	Py_RETURN_TRUE;
+}
 
 static PyObject * Storm_SFileIsPatchedArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
@@ -76,7 +96,7 @@ static PyObject * Storm_SFileIsPatchedArchive(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileOpenFileEx(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
-	int scope = 0;
+	int scope;
 	HANDLE file = NULL;
 	bool result;
 
@@ -219,18 +239,19 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 
 
 static PyMethodDef StormMethods[] = {
-	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open a MPQ archive."},
-	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close a MPQ archive."},
+	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open an MPQ archive."},
+	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close an MPQ archive."},
 
-	{"SFileIsPatchedArchive",  Storm_SFileIsPatchedArchive, METH_VARARGS, "Determines if a MPQ archive has been patched"},
+	{"SFileIsPatchedArchive",  Storm_SFileIsPatchedArchive, METH_VARARGS, "Determines if an MPQ archive has been patched"},
+	{"SFileOpenPatchArchive", Storm_SFileOpenPatchArchive, METH_VARARGS, "Adds a patch archive to an MPQ archive"},
 
-	{"SFileOpenFileEx", Storm_SFileOpenFileEx, METH_VARARGS, "Open a file from a MPQ archive"},
-	{"SFileGetFileSize", Storm_SFileGetFileSize, METH_VARARGS, "Retrieve the size of a file within a MPQ archive"},
+	{"SFileOpenFileEx", Storm_SFileOpenFileEx, METH_VARARGS, "Open a file from an MPQ archive"},
+	{"SFileGetFileSize", Storm_SFileGetFileSize, METH_VARARGS, "Retrieve the size of a file within an MPQ archive"},
 	{"SFileSetFilePointer", Storm_SFileSetFilePointer, METH_VARARGS, "Seeks to a position within archive file"},
 	{"SFileReadFile", Storm_SFileReadFile, METH_VARARGS, "Reads bytes in an open file"},
 	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file"},
-	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within a MPQ archive"},
-	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from a MPQ archive to the local drive"},
+	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within an MPQ archive"},
+	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from an MPQ archive to the local drive"},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
