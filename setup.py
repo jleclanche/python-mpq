@@ -13,7 +13,7 @@ CLASSIFIERS = [
 	"Programming Language :: Python",
 ]
 
-module = Extension("storm", sources=["storm/stormmodule.cc"], language="c++", libraries=["StormLib"])
+module = Extension("storm", sources=["storm/stormmodule.cc"], language="c++", libraries=["StormLib"], extra_compile_args=["-O0"])
 
 setup(
 	name = "python-storm",
