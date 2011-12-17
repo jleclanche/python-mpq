@@ -32,23 +32,6 @@ static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 	return Py_BuildValue("l", mpq);
 }
 
-static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
-	HANDLE mpq = NULL;
-	bool result;
-
-	if (!PyArg_ParseTuple(args, "i:SFileCloseArchive", &mpq)) {
-		return NULL;
-	}
-	result = SFileCloseArchive(mpq);
-
-	if (!result) {
-		PyErr_SetString(StormError, "Error closing archive");
-		return NULL;
-	}
-
-	Py_RETURN_NONE;
-}
-
 static PyObject * Storm_SFileAddListFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
@@ -61,6 +44,40 @@ static PyObject * Storm_SFileAddListFile(PyObject *self, PyObject *args) {
 
 	if (result != ERROR_SUCCESS) {
 		PyErr_SetString(StormError, "Error adding listfile");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+}
+
+static PyObject * Storm_SFileFlushArchive(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "i:SFileFlushArchive", &mpq)) {
+		return NULL;
+	}
+	result = SFileFlushArchive(mpq);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error flushing archive, archive may be corrupted!");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+}
+
+static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "i:SFileCloseArchive", &mpq)) {
+		return NULL;
+	}
+	result = SFileCloseArchive(mpq);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error closing archive");
 		return NULL;
 	}
 
@@ -259,6 +276,7 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open an MPQ archive."},
 	{"SFileAddListFile", Storm_SFileAddListFile, METH_VARARGS, "Adds an in-memory listfile to an open MPQ archive"},
+	{"SFileFlushArchive", Storm_SFileFlushArchive, METH_VARARGS, "Flushes all unsaved data in an MPQ archive to the disk"},
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close an MPQ archive."},
 
 	{"SFileIsPatchedArchive",  Storm_SFileIsPatchedArchive, METH_VARARGS, "Determines if an MPQ archive has been patched"},
