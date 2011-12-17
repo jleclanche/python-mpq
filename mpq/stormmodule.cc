@@ -49,6 +49,24 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject * Storm_SFileAddListFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *name;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "is:SFileAddListFile", &mpq, &name)) {
+		return NULL;
+	}
+	result = SFileAddListFile(mpq, name);
+
+	if (result != ERROR_SUCCESS) {
+		PyErr_SetString(StormError, "Error adding listfile");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+}
+
 /*
  * Using Patched archives
  */
@@ -240,6 +258,7 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open an MPQ archive."},
+	{"SFileAddListFile", Storm_SFileAddListFile, METH_VARARGS, "Adds an in-memory listfile to an open MPQ archive"},
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close an MPQ archive."},
 
 	{"SFileIsPatchedArchive",  Storm_SFileIsPatchedArchive, METH_VARARGS, "Determines if an MPQ archive has been patched"},
