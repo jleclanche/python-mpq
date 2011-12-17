@@ -288,11 +288,52 @@ static PyObject * Storm_SFileGetFileName(PyObject *self, PyObject *args) {
 	result = SFileGetFileName(file, name);
 
 	if (!result) {
-		PyErr_SetString(StormError, "Error extracting file");
+		PyErr_SetString(StormError, "Error getting file name");
 		return NULL;
 	}
 
 	return Py_BuildValue("s", name);
+}
+
+static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
+	HANDLE file = NULL;
+	int type;
+	int value;
+	long longvalue;
+	int size;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "ii:SFileGetFileInfo", &file, &type)) {
+		return NULL;
+	}
+
+	/* Avoid calls to obsolete stuff */
+	if (type == SFILE_INFO_ARCHIVE_NAME || type == SFILE_INFO_HASH_TABLE || type == SFILE_INFO_BLOCK_TABLE) {
+		PyErr_SetString(PyExc_NotImplementedError, "Unsupported INFO_TYPE queried");
+		return NULL;
+	} else if (type == SFILE_INFO_FILETIME) {
+		size = sizeof(long);
+		result = SFileGetFileInfo(file, type, &longvalue, size);
+	} else {
+		size = sizeof(int);
+		result = SFileGetFileInfo(file, type, &value, size);
+	}
+
+	if (!result) {
+		if (GetLastError() == ERROR_INVALID_PARAMETER) {
+			PyErr_SetString(PyExc_TypeError, "Invalid INFO_TYPE queried");
+			return NULL;
+		} else {
+			PyErr_SetString(StormError, "Error getting info");
+			return NULL;
+		}
+	}
+
+	if (size == sizeof(long)) {
+		return Py_BuildValue("i", value);
+	} else {
+		return Py_BuildValue("l", longvalue);
+	}
 }
 
 static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
@@ -337,7 +378,7 @@ static PyMethodDef StormMethods[] = {
 	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file"},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within an MPQ archive"},
 	{"SFileGetFileName", Storm_SFileGetFileName, METH_VARARGS, "Retrieve the name of an open file"},
-	/* SFileGetFileInfo */
+	{"SFileGetFileInfo", Storm_SFileGetFileInfo, METH_VARARGS, "Retrieve information about an open file or MPQ archive"},
 	/* SFileVerifyFile (unimplemented) */
 	/* SFileVerifyArchive (unimplemented) */
 	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from an MPQ archive to the local drive"},
