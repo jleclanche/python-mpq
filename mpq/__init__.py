@@ -36,6 +36,9 @@ class MPQFile(object):
 	def close(self):
 		storm.SFileCloseArchive(self._mpq)
 
+	def flush(self):
+		storm.SFileFlushArchive(self._mpq)
+
 	def getinfo(self, member):
 		return MPQInfo(member)
 
