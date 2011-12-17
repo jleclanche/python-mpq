@@ -96,8 +96,7 @@ class MPQExtFile(object):
 
 	def read(self, size=None):
 		if size is None:
-			# Careful, this may break. Waiting for a proper stormlib api for this.
-			size = self.size()
+			size = self.size() - self.tell()
 		return storm.SFileReadFile(self._file, size)
 
 	def seek(self, offset, whence=SEEK_SET):
