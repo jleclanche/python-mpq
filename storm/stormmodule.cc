@@ -60,7 +60,7 @@ static PyObject * Storm_SFileOpenPatchArchive(PyObject *self, PyObject *args) {
 	int flags;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "issi:SFileOpenPatchArchive", &mpq, &name, &prefix, &flags)) {
+	if (!PyArg_ParseTuple(args, "iszi:SFileOpenPatchArchive", &mpq, &name, &prefix, &flags)) {
 		return NULL;
 	}
 	result = SFileOpenPatchArchive(mpq, name, prefix, flags);
