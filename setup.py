@@ -16,14 +16,14 @@ CLASSIFIERS = [
 module = Extension("storm", sources=["storm/stormmodule.cc"], language="c++", libraries=["StormLib"], extra_compile_args=["-O0"])
 
 setup(
-	name = "python-storm",
+	name = "python-mpq",
 	ext_modules = [module],
 	author = "Jerome Leclanche",
 	author_email = "adys.wh@gmail.com",
 	classifiers = CLASSIFIERS,
 	description = "Python bindings for StormLib",
-	download_url = "http://github.com/Adys/python-storm/tarball/master",
+	download_url = "http://github.com/Adys/python-mpq/tarball/master",
 	#long_description = README,
-	url = "http://github.com/Adys/python-storm",
+	url = "http://github.com/Adys/python-mpq",
 	version = "1.0",
 )
