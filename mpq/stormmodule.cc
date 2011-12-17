@@ -277,6 +277,24 @@ static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
 	Py_RETURN_TRUE;
 }
 
+static PyObject * Storm_SFileGetFileName(PyObject *self, PyObject *args) {
+	HANDLE file = NULL;
+	char name[MAX_PATH];
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "i:SFileGetFileName", &file)) {
+		return NULL;
+	}
+	result = SFileGetFileName(file, name);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error extracting file");
+		return NULL;
+	}
+
+	return Py_BuildValue("s", name);
+}
+
 static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
@@ -318,7 +336,7 @@ static PyMethodDef StormMethods[] = {
 	{"SFileReadFile", Storm_SFileReadFile, METH_VARARGS, "Reads bytes in an open file"},
 	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file"},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within an MPQ archive"},
-	/* SFileGetFileName */
+	{"SFileGetFileName", Storm_SFileGetFileName, METH_VARARGS, "Retrieve the name of an open file"},
 	/* SFileGetFileInfo */
 	/* SFileVerifyFile (unimplemented) */
 	/* SFileVerifyArchive (unimplemented) */
