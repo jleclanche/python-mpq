@@ -2,8 +2,9 @@
 """
 Python wrapper around Storm C API bindings
 """
-from os import SEEK_SET, SEEK_CUR, SEEK_END
+import os.path
 import storm
+from os import SEEK_SET, SEEK_CUR, SEEK_END
 
 
 SFILE_OPEN_FROM_MPQ = 0x00000000
@@ -26,6 +27,7 @@ class MPQFile(object):
 	def __init__(self, name, flags=MPQ_OPEN_READ_ONLY):
 		priority = 0 # Unused by StormLib
 		self._mpq = storm.SFileOpenArchive(name, priority, flags)
+		self._name = os.path.basename(name)
 		self._listfile = []
 
 	def __contains__(self, name):
@@ -34,8 +36,8 @@ class MPQFile(object):
 	def close(self):
 		storm.SFileCloseArchive(self._mpq)
 
-	def getinfo(self):
-		pass
+	def getinfo(self, member):
+		return MPQInfo(member)
 
 	def infoList(self):
 		pass
@@ -99,6 +101,9 @@ class MPQExtFile(object):
 		return storm.SFileGetFileSize(self._file)
 
 class MPQInfo(object):
+	def __init__(self, info):
+		self._info = info
+
 	def filename(self):
 		return "(not implemented)"
 
