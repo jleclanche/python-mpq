@@ -13,11 +13,17 @@ CLASSIFIERS = [
 	"Programming Language :: Python",
 ]
 
-module = Extension("storm", sources=["storm/stormmodule.cc"], language="c++", libraries=["StormLib"], extra_compile_args=["-O0"])
+DEBUG = False
+compile_args = []
+if DEBUG:
+	compile_args.append("-O0")
+
+module = Extension("mpq.storm", sources=["mpq/stormmodule.cc"], language="c++", libraries=["StormLib"], extra_compile_args=compile_args)
 
 setup(
 	name = "python-mpq",
 	ext_modules = [module],
+	packages = ["mpq"],
 	author = "Jerome Leclanche",
 	author_email = "adys.wh@gmail.com",
 	classifiers = CLASSIFIERS,
