@@ -45,6 +45,9 @@ class MPQFile(object):
 	def is_patched(self):
 		return storm.SFileIsPatchedArchive(self._mpq)
 
+	def name(self):
+		return self._name
+
 	def namelist(self):
 		if not self._listfile:
 			from cStringIO import StringIO
