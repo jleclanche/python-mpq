@@ -63,7 +63,7 @@ class MPQFile(object):
 		return MPQExtFile(storm.SFileOpenFileEx(self._mpq, name, flags))
 
 	def patch(self, name, prefix=None, flags=0):
-		SFileOpenPatchArchive(self._mpq, name, prefix, flags)
+		storm.SFileOpenPatchArchive(self._mpq, name, prefix, flags)
 
 	def extract(self, member, path="."):
 		storm.SFileExtractFile(self._mpq, member, path)
