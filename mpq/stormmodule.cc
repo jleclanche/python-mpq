@@ -87,7 +87,7 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileCompactArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *listfile;
-	bool reserved = 0; // Unused
+	bool reserved = 0; /* Unused */
 	bool result;
 
 	if (!PyArg_ParseTuple(args, "iz:SFileCompactArchive", &mpq, &listfile)) {
@@ -299,10 +299,15 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open an MPQ archive."},
+	/* SFileCreateArchive */
 	{"SFileAddListFile", Storm_SFileAddListFile, METH_VARARGS, "Adds an in-memory listfile to an open MPQ archive"},
+	/* SFileSetLocale (unimplemented) */
+	/* SFileGetLocale (unimplemented) */
 	{"SFileFlushArchive", Storm_SFileFlushArchive, METH_VARARGS, "Flushes all unsaved data in an MPQ archive to the disk"},
-	{"SFileCompactArchive", Storm_SFileCompactArchive, METH_VARARGS, "Compacts (rebuilds) the MPQ archive, freeing all gaps that were created by write operations"},
 	{"SFileCloseArchive",  Storm_SFileCloseArchive, METH_VARARGS, "Close an MPQ archive."},
+	{"SFileCompactArchive", Storm_SFileCompactArchive, METH_VARARGS, "Compacts (rebuilds) the MPQ archive, freeing all gaps that were created by write operations"},
+	/* SFileSetMaxFileCount */
+	/* SFileSetCompactCallback (unimplemented) */
 
 	{"SFileIsPatchedArchive",  Storm_SFileIsPatchedArchive, METH_VARARGS, "Determines if an MPQ archive has been patched"},
 	{"SFileOpenPatchArchive", Storm_SFileOpenPatchArchive, METH_VARARGS, "Adds a patch archive to an MPQ archive"},
@@ -313,6 +318,10 @@ static PyMethodDef StormMethods[] = {
 	{"SFileReadFile", Storm_SFileReadFile, METH_VARARGS, "Reads bytes in an open file"},
 	{"SFileCloseFile", Storm_SFileCloseFile, METH_VARARGS, "Close an open file"},
 	{"SFileHasFile", Storm_SFileHasFile, METH_VARARGS, "Check if a file exists within an MPQ archive"},
+	/* SFileGetFileName */
+	/* SFileGetFileInfo */
+	/* SFileVerifyFile (unimplemented) */
+	/* SFileVerifyArchive (unimplemented) */
 	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from an MPQ archive to the local drive"},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
