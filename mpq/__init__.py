@@ -106,6 +106,9 @@ class MPQExtFile(object):
 	def size(self):
 		return storm.SFileGetFileSize(self._file)
 
+	def tell(self):
+		return storm.SFileSetFilePointer(self._file, 0, SEEK_CUR)
+
 class MPQInfo(object):
 	def __init__(self, info):
 		self._info = info
