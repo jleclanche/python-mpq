@@ -159,7 +159,7 @@ static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
 	sizeLow = SFileGetFileSize(file, &sizeHigh);
 
 	if (sizeLow == SFILE_INVALID_SIZE) {
-		PyErr_SetString(StormError, "Error searching for file");
+		PyErr_SetString(StormError, "Error getting file size");
 		return NULL;
 	}
 
@@ -183,7 +183,12 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 
 	result = SFileSetFilePointer(file, posLow, &posHigh, whence);
 
-	Py_RETURN_NONE;
+	if (result == SFILE_INVALID_SIZE) {
+		PyErr_SetString(StormError, "Error seeking in file");
+		return NULL;
+	}
+
+	return Py_BuildValue("l", result | posHigh);
 }
 
 static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
