@@ -298,8 +298,8 @@ static PyObject * Storm_SFileGetFileName(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	int type;
-	int value;
-	long longvalue;
+	int value = 0;
+	long longvalue = 0;
 	int size;
 	bool result;
 
@@ -329,10 +329,10 @@ static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 		}
 	}
 
-	if (size == sizeof(long)) {
-		return Py_BuildValue("i", value);
-	} else {
+	if (type == SFILE_INFO_FILETIME) {
 		return Py_BuildValue("l", longvalue);
+	} else {
+		return Py_BuildValue("i", value);
 	}
 }
 
@@ -403,7 +403,7 @@ PyMODINIT_FUNC initstorm(void) {
 	DECLARE(MPQ_OPEN_NO_ATTRIBUTES);
 	DECLARE(MPQ_OPEN_FORCE_MPQ_V1);
 	DECLARE(MPQ_OPEN_CHECK_SECTOR_CRC);
-	DECLARE(MPQ_OPEN_READ_ONLY );
+	DECLARE(MPQ_OPEN_READ_ONLY);
 
 	/* SFileOpenFileEx */
 	/* DECLARE(SFILE_OPEN_FROM_MPQ); */
