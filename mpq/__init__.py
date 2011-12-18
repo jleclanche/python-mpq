@@ -7,16 +7,6 @@ import storm
 from os import SEEK_SET, SEEK_CUR, SEEK_END
 
 
-SFILE_OPEN_FROM_MPQ = 0x00000000
-SFILE_OPEN_PATCHED_FILE = 0x00000001
-SFILE_OPEN_BY_INDEX = 0x00000002
-
-MPQ_OPEN_NO_LISTFILE = 0x010
-MPQ_OPEN_NO_ATTRIBUTES = 0x020
-MPQ_OPEN_FORCE_MPQ_V1 = 0x040
-MPQ_OPEN_CHECK_SECTOR_CRC = 0x080
-MPQ_OPEN_READ_ONLY = 0x100
-
 class MPQFile(object):
 	"""
 	An MPQ archive
@@ -24,7 +14,7 @@ class MPQFile(object):
 	ATTRIBUTES = "(attributes)"
 	LISTFILE = "(listfile)"
 
-	def __init__(self, name, flags=MPQ_OPEN_READ_ONLY):
+	def __init__(self, name, flags=0):
 		priority = 0 # Unused by StormLib
 		self._mpq = storm.SFileOpenArchive(name, priority, flags)
 		self._name = os.path.basename(name)
@@ -39,8 +29,10 @@ class MPQFile(object):
 	def flush(self):
 		storm.SFileFlushArchive(self._mpq)
 
-	def getinfo(self, member):
-		return MPQInfo(member)
+	def getinfo(self, f):
+		if isinstance(f, basestring):
+			f = self.open(f)
+		return MPQInfo(f)
 
 	def infoList(self):
 		pass
@@ -63,10 +55,12 @@ class MPQFile(object):
 		return self._listfile
 
 	def open(self, name, mode="r", patched=True):
+		flags = 0
 		if isinstance(name, int):
-			raise NotImplementedError("Opening by index not implemented")
+			flags |= storm.SFILE_OPEN_BY_INDEX
 
-		flags = SFILE_OPEN_FROM_MPQ
+		if patched:
+			flags |= storm.SFILE_OPEN_PATCHED_FILE
 
 		return MPQExtFile(storm.SFileOpenFileEx(self._mpq, name, flags))
 
@@ -91,6 +85,9 @@ class MPQExtFile(object):
 	def __init__(self, file):
 		self._file = file
 
+	def _info(self, type):
+		return storm.SFileGetFileInfo(self._file, type)
+
 	def close(self):
 		storm.SFileCloseFile(self._file)
 
@@ -109,8 +106,8 @@ class MPQExtFile(object):
 		return storm.SFileSetFilePointer(self._file, 0, SEEK_CUR)
 
 class MPQInfo(object):
-	def __init__(self, info):
-		self._info = info
+	def __init__(self, file):
+		self._file = file
 
 	def filename(self):
 		return "(not implemented)"
@@ -125,10 +122,10 @@ class MPQInfo(object):
 		raise NotImplementedError
 
 	def compress_size(self):
-		return 0
+		return self._file._info(storm.SFILE_INFO_COMPRESSED_SIZE)
 
 	def file_size(self):
-		return 0
+		return self._file._info(storm.SFILE_INFO_FILE_SIZE)
 
 def test():
 	base = "/home/adys/mpq/WoW/12911.direct/Data/expansion1.MPQ"
