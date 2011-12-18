@@ -406,10 +406,7 @@ PyMODINIT_FUNC initstorm(void) {
 	DECLARE(MPQ_OPEN_READ_ONLY);
 
 	/* SFileOpenFileEx */
-	/* DECLARE(SFILE_OPEN_FROM_MPQ); */
 	DECLARE(SFILE_OPEN_PATCHED_FILE);
-	/* DECLARE(SFILE_OPEN_BY_INDEX); */
-	PyObject_SetAttrString(m, "SFILE_OPEN_BY_INDEX", PyLong_FromLong((long) 0x00000002));
 
 	/* SFileGetFileInfo */
 	DECLARE(SFILE_INFO_ARCHIVE_SIZE);

@@ -57,7 +57,7 @@ class MPQFile(object):
 	def open(self, name, mode="r", patched=True):
 		flags = 0
 		if isinstance(name, int):
-			flags |= storm.SFILE_OPEN_BY_INDEX
+			name = "File%08x.xxx" % (int)
 
 		if patched:
 			flags |= storm.SFILE_OPEN_PATCHED_FILE
