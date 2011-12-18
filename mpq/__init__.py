@@ -34,8 +34,8 @@ class MPQFile(object):
 			f = self.open(f)
 		return MPQInfo(f)
 
-	def infoList(self):
-		pass
+	def infolist(self):
+		return [self.getinfo(x) for x in self.namelist()]
 
 	def is_patched(self):
 		return storm.SFileIsPatchedArchive(self._mpq)
@@ -62,7 +62,7 @@ class MPQFile(object):
 		if patched:
 			flags |= storm.SFILE_OPEN_PATCHED_FILE
 
-		return MPQExtFile(storm.SFileOpenFileEx(self._mpq, name, flags))
+		return MPQExtFile(storm.SFileOpenFileEx(self._mpq, name, flags), name)
 
 	def patch(self, name, prefix=None, flags=0):
 		storm.SFileOpenPatchArchive(self._mpq, name, prefix, flags)
@@ -71,8 +71,10 @@ class MPQFile(object):
 		storm.SFileExtractFile(self._mpq, member, path)
 
 	def printdir(self):
-		for name in self.namelist():
-			print name
+		print "%-85s %12s %12s" % ("File Name", "Size", "    Packed Size")
+		for x in self.infolist():
+			#date = "%d-%02d-%02d %02d:%02d:%02d" % x.date_time[:6]
+			print "%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size)
 
 	def read(self, name):
 		pass
@@ -82,8 +84,9 @@ class MPQFile(object):
 
 
 class MPQExtFile(object):
-	def __init__(self, file):
+	def __init__(self, file, name):
 		self._file = file
+		self.name = name
 
 	def _info(self, type):
 		return storm.SFileGetFileInfo(self._file, type)
@@ -109,28 +112,26 @@ class MPQInfo(object):
 	def __init__(self, file):
 		self._file = file
 
+	@property
 	def filename(self):
-		return "(not implemented)"
+		return self._file.name
 
+	@property
 	def date_time(self):
-		raise NotImplementedError
+		return self._file._info(storm.SFILE_INFO_FILETIME)
 
+	@property
 	def compress_type(self):
 		raise NotImplementedError
 
+	@property
 	def CRC(self):
 		raise NotImplementedError
 
+	@property
 	def compress_size(self):
 		return self._file._info(storm.SFILE_INFO_COMPRESSED_SIZE)
 
+	@property
 	def file_size(self):
 		return self._file._info(storm.SFILE_INFO_FILE_SIZE)
-
-def test():
-	base = "/home/adys/mpq/WoW/12911.direct/Data/expansion1.MPQ"
-	f = MPQFile(base)
-	f.printdir()
-
-if __name__ == "__main__":
-	test()
