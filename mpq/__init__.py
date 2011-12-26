@@ -17,7 +17,7 @@ class MPQFile(object):
 	def __init__(self, name, flags=0):
 		priority = 0 # Unused by StormLib
 		self._mpq = storm.SFileOpenArchive(name, priority, flags)
-		self._name = os.path.basename(name)
+		self.name = name
 		self._listfile = []
 
 	def __contains__(self, name):
@@ -31,7 +31,7 @@ class MPQFile(object):
 
 	def getinfo(self, f):
 		if isinstance(f, basestring):
-			f = self.open(f)
+			f = self.open(f.replace("/", "\\"))
 		return MPQInfo(f)
 
 	def infolist(self):
@@ -39,9 +39,6 @@ class MPQFile(object):
 
 	def is_patched(self):
 		return storm.SFileIsPatchedArchive(self._mpq)
-
-	def name(self):
-		return self._name
 
 	def namelist(self):
 		if not self._listfile:
@@ -113,8 +110,12 @@ class MPQInfo(object):
 		self._file = file
 
 	@property
+	def basename(self):
+		return os.path.basename(self.filename)
+
+	@property
 	def filename(self):
-		return self._file.name
+		return self._file.name.replace("\\", "/")
 
 	@property
 	def date_time(self):
