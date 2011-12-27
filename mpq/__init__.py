@@ -74,7 +74,10 @@ class MPQFile(object):
 			print "%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size)
 
 	def read(self, name):
-		pass
+		if isinstance(name, MPQInfo):
+			name = name.name
+		f = self.open(name)
+		return f.read()
 
 	def testmpq(self):
 		pass
