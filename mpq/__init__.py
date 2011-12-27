@@ -56,6 +56,9 @@ class MPQFile(object):
 		if isinstance(name, int):
 			name = "File%08x.xxx" % (int)
 
+		if name not in self:
+			raise KeyError("There is no item named %r in the archive" % (name))
+
 		if patched:
 			flags |= storm.SFILE_OPEN_PATCHED_FILE
 
