@@ -130,12 +130,16 @@ static PyObject * Storm_SFileOpenPatchArchive(PyObject *self, PyObject *args) {
 				PyErr_SetString(PyExc_TypeError, "Could not patch archive: Invalid file name or patch prefix");
 				break;
 
+			case ERROR_FILE_NOT_FOUND:
+				PyErr_Format(PyExc_IOError, "Could not patch archive: No such file or directory: %s", name);
+				break;
+
 			case ERROR_ACCESS_DENIED:
 				PyErr_SetString(PyExc_IOError, "Could not patch archive: Access denied");
 				break;
 
 			default:
-				PyErr_SetString(StormError, "Could not patch archive");
+				PyErr_Format(StormError, "Could not patch archive: %i", error);
 				break;
 		}
 		return NULL;
