@@ -91,6 +91,9 @@ class MPQExtFile(object):
 		self._file = file
 		self.name = name
 
+	def __repr__(self):
+		return "%s(%r)" % (self.__class__.__name__, self.name)
+
 	def _info(self, type):
 		return storm.SFileGetFileInfo(self._file, type)
 
