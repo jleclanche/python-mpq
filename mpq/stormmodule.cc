@@ -251,8 +251,18 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	if (!result) {
 		int error = GetLastError();
 		if (error != ERROR_HANDLE_EOF) {
+			switch (error) {
+				case ERROR_INVALID_HANDLE:
+					PyErr_SetString(PyExc_TypeError, "Could not read file: Invalid handle");
+					break;
+				case ERROR_FILE_CORRUPT:
+					PyErr_SetString(PyExc_IOError, "Could not read file: File is corrupt");
+					break;
+				default:
+					PyErr_Format(StormError, "Could not read file: %i", error);
+					break;
+			}
 			/* Emulate python's read() behaviour => we don't care if we go past EOF */
-			PyErr_SetString(StormError, "Error reading file");
 			return NULL;
 		}
 	}
