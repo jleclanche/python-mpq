@@ -208,10 +208,10 @@ static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
-	unsigned long offset;
+	unsigned long offset = 0;
 	int whence;
-	int posLow;
-	int posHigh;
+	int posLow = 0;
+	int posHigh = 0;
 	unsigned int result;
 
 	if (!PyArg_ParseTuple(args, "iii:SFileSetFilePointer", &file, &offset, &whence)) {
@@ -220,11 +220,21 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 
 	posLow = (unsigned int) offset;
 	posHigh = (unsigned int)(offset >> 32);
-
 	result = SFileSetFilePointer(file, posLow, &posHigh, whence);
 
 	if (result == SFILE_INVALID_SIZE) {
-		PyErr_SetString(StormError, "Error seeking in file");
+		int error = GetLastError();
+		switch (error) {
+			case ERROR_INVALID_HANDLE:
+				PyErr_SetString(PyExc_TypeError, "Could not seek within file: Invalid handle");
+				break;
+			case ERROR_INVALID_PARAMETER:
+				PyErr_Format(PyExc_TypeError, "Could not seek within file: %i is not a valid whence", whence);
+				break;
+			default:
+				PyErr_Format(StormError, "Error seeking in file: %i", GetLastError());
+				break;
+		}
 		return NULL;
 	}
 

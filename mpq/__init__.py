@@ -71,10 +71,10 @@ class MPQFile(object):
 		storm.SFileExtractFile(self._mpq, member, path)
 
 	def printdir(self):
-		print "%-85s %12s %12s" % ("File Name", "Size", "    Packed Size")
+		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))
 		for x in self.infolist():
 			#date = "%d-%02d-%02d %02d:%02d:%02d" % x.date_time[:6]
-			print "%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size)
+			print("%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size))
 
 	def read(self, name):
 		if isinstance(name, MPQInfo):
