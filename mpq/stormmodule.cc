@@ -249,8 +249,12 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	result = SFileReadFile(file, buffer, size, &bytesRead, &overlapped);
 
 	if (!result) {
-		PyErr_SetString(StormError, "Error reading file");
-		return NULL;
+		int error = GetLastError();
+		if (error != ERROR_HANDLE_EOF) {
+			/* Emulate python's read() behaviour => we don't care if we go past EOF */
+			PyErr_SetString(StormError, "Error reading file");
+			return NULL;
+		}
 	}
 
 	ret = Py_BuildValue("s#", buffer, bytesRead);
