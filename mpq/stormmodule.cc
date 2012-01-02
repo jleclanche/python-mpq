@@ -37,7 +37,7 @@ static PyObject * Storm_SFileAddListFile(PyObject *self, PyObject *args) {
 	char *name;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "is:SFileAddListFile", &mpq, &name)) {
+	if (!PyArg_ParseTuple(args, "ls:SFileAddListFile", &mpq, &name)) {
 		return NULL;
 	}
 	result = SFileAddListFile(mpq, name);
@@ -54,7 +54,7 @@ static PyObject * Storm_SFileFlushArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "i:SFileFlushArchive", &mpq)) {
+	if (!PyArg_ParseTuple(args, "l:SFileFlushArchive", &mpq)) {
 		return NULL;
 	}
 	result = SFileFlushArchive(mpq);
@@ -71,7 +71,7 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "i:SFileCloseArchive", &mpq)) {
+	if (!PyArg_ParseTuple(args, "l:SFileCloseArchive", &mpq)) {
 		return NULL;
 	}
 	result = SFileCloseArchive(mpq);
@@ -90,7 +90,7 @@ static PyObject * Storm_SFileCompactArchive(PyObject *self, PyObject *args) {
 	bool reserved = 0; /* Unused */
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "iz:SFileCompactArchive", &mpq, &listfile)) {
+	if (!PyArg_ParseTuple(args, "lz:SFileCompactArchive", &mpq, &listfile)) {
 		return NULL;
 	}
 	result = SFileCompactArchive(mpq, listfile, reserved);
@@ -114,7 +114,7 @@ static PyObject * Storm_SFileOpenPatchArchive(PyObject *self, PyObject *args) {
 	int flags;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "iszi:SFileOpenPatchArchive", &mpq, &name, &prefix, &flags)) {
+	if (!PyArg_ParseTuple(args, "lszi:SFileOpenPatchArchive", &mpq, &name, &prefix, &flags)) {
 		return NULL;
 	}
 	result = SFileOpenPatchArchive(mpq, name, prefix, flags);
@@ -152,7 +152,7 @@ static PyObject * Storm_SFileIsPatchedArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "i:SFileIsPatchedArchive", &mpq)) {
+	if (!PyArg_ParseTuple(args, "l:SFileIsPatchedArchive", &mpq)) {
 		return NULL;
 	}
 	result = SFileIsPatchedArchive(mpq);
@@ -175,7 +175,7 @@ static PyObject * Storm_SFileOpenFileEx(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "isi:SFileOpenFileEx", &mpq, &name, &scope)) {
+	if (!PyArg_ParseTuple(args, "lsi:SFileOpenFileEx", &mpq, &name, &scope)) {
 		return NULL;
 	}
 	result = SFileOpenFileEx(mpq, name, scope, &file);
@@ -193,7 +193,7 @@ static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
 	unsigned int sizeLow;
 	unsigned int sizeHigh;
 
-	if (!PyArg_ParseTuple(args, "i:SFileGetFileSize", &file)) {
+	if (!PyArg_ParseTuple(args, "l:SFileGetFileSize", &file)) {
 		return NULL;
 	}
 	sizeLow = SFileGetFileSize(file, &sizeHigh);
@@ -214,7 +214,7 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 	int posHigh = 0;
 	unsigned int result;
 
-	if (!PyArg_ParseTuple(args, "iii:SFileSetFilePointer", &file, &offset, &whence)) {
+	if (!PyArg_ParseTuple(args, "lii:SFileSetFilePointer", &file, &offset, &whence)) {
 		return NULL;
 	}
 
@@ -250,7 +250,7 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	bool result;
 	PyObject * ret;
 
-	if (!PyArg_ParseTuple(args, "ii:SFileReadFile", &file, &size)) {
+	if (!PyArg_ParseTuple(args, "li:SFileReadFile", &file, &size)) {
 		return NULL;
 	}
 
@@ -287,7 +287,7 @@ static PyObject * Storm_SFileCloseFile(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 
 	bool result;
-	if (!PyArg_ParseTuple(args, "i:SFileCloseFile", &file)) {
+	if (!PyArg_ParseTuple(args, "l:SFileCloseFile", &file)) {
 		return NULL;
 	}
 	result = SFileCloseFile(file);
@@ -305,7 +305,7 @@ static PyObject * Storm_SFileHasFile(PyObject *self, PyObject *args) {
 	char *name;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "is:SFileHasFile", &mpq, &name)) {
+	if (!PyArg_ParseTuple(args, "ls:SFileHasFile", &mpq, &name)) {
 		return NULL;
 	}
 	result = SFileHasFile(mpq, name);
@@ -327,7 +327,7 @@ static PyObject * Storm_SFileGetFileName(PyObject *self, PyObject *args) {
 	char name[MAX_PATH];
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "i:SFileGetFileName", &file)) {
+	if (!PyArg_ParseTuple(args, "l:SFileGetFileName", &file)) {
 		return NULL;
 	}
 	result = SFileGetFileName(file, name);
@@ -348,7 +348,7 @@ static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 	int size;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "ii:SFileGetFileInfo", &file, &type)) {
+	if (!PyArg_ParseTuple(args, "li:SFileGetFileInfo", &file, &type)) {
 		return NULL;
 	}
 
@@ -387,7 +387,7 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	char *localName;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "iss:SFileExtractFile", &mpq, &name, &localName)) {
+	if (!PyArg_ParseTuple(args, "lss:SFileExtractFile", &mpq, &name, &localName)) {
 		return NULL;
 	}
 	result = SFileExtractFile(mpq, name, localName);
