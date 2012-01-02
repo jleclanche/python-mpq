@@ -214,7 +214,7 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 	int posHigh = 0;
 	unsigned int result;
 
-	if (!PyArg_ParseTuple(args, "lii:SFileSetFilePointer", &file, &offset, &whence)) {
+	if (!PyArg_ParseTuple(args, "lli:SFileSetFilePointer", &file, &offset, &whence)) {
 		return NULL;
 	}
 
