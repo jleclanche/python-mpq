@@ -229,7 +229,11 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 				PyErr_SetString(PyExc_TypeError, "Could not seek within file: Invalid handle");
 				break;
 			case ERROR_INVALID_PARAMETER:
-				PyErr_Format(PyExc_TypeError, "Could not seek within file: %i is not a valid whence", whence);
+				if (whence != FILE_BEGIN && whence != FILE_CURRENT && whence != FILE_END) {
+					PyErr_Format(PyExc_TypeError, "Could not seek within file: %i is not a valid whence", whence);
+				} else {
+					PyErr_Format(PyExc_TypeError, "Could not seek within file: offset %i is too large", offset);
+				}
 				break;
 			default:
 				PyErr_Format(StormError, "Error seeking in file: %i", GetLastError());
