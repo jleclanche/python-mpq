@@ -232,7 +232,7 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 				if (whence != FILE_BEGIN && whence != FILE_CURRENT && whence != FILE_END) {
 					PyErr_Format(PyExc_TypeError, "Could not seek within file: %i is not a valid whence", whence);
 				} else {
-					PyErr_Format(PyExc_TypeError, "Could not seek within file: offset %i is too large", offset);
+					PyErr_Format(PyExc_TypeError, "Could not seek within file: offset %lu is too large", offset);
 				}
 				break;
 			default:
