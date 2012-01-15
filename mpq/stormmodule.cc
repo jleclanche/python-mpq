@@ -25,7 +25,16 @@ static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 	result = SFileOpenArchive(name, priority, MPQ_OPEN_READ_ONLY, &mpq);
 
 	if (!result) {
-		PyErr_SetString(StormError, "Error opening archive");
+		int error = GetLastError();
+		switch (error) {
+			case ERROR_FILE_NOT_FOUND:
+				PyErr_Format(PyExc_IOError, "Could not open archive: No such file or directory: %s", name);
+				break;
+
+			default:
+				PyErr_Format(StormError, "Error opening archive %s: %i", name, error);
+				break;
+		}
 		return NULL;
 	}
 
