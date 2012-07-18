@@ -18,7 +18,7 @@ compile_args = []
 if DEBUG:
 	compile_args.append("-O0")
 
-module = Extension("mpq.storm", sources=["mpq/stormmodule.cc"], language="c++", libraries=["StormLib"], extra_compile_args=compile_args)
+module = Extension("mpq.storm", sources=["mpq/stormmodule.cc"], language="c++", libraries=["storm"], extra_compile_args=compile_args)
 
 setup(
 	name = "python-mpq",
