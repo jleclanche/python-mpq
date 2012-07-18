@@ -73,7 +73,7 @@ class MPQFile(object):
 			self._regenerate_listfile()
 		return self._listfile
 
-	def open(self, name, mode="r", patched=True):
+	def open(self, name, mode="r", patched=False):
 		if isinstance(name, int):
 			name = "File%08x.xxx" % (int)
 
@@ -89,7 +89,7 @@ class MPQFile(object):
 		for mpq in self._archives:
 			storm.SFileOpenPatchArchive(mpq, name, prefix, flags)
 
-	def extract(self, member, path=".", patched=True):
+	def extract(self, member, path=".", patched=False):
 		scope = int(bool(patched))
 		mpq = self._archive_contains(name)
 		if not mpq:
