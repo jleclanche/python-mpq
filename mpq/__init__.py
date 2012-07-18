@@ -41,39 +41,66 @@ class MPQFile(object):
 			self._listfile += [x.replace("\\", "/") for x in lf if x]
 
 	def add_archive(self, name, flags=0):
+		"""
+		Adds an archive to the MPQFile
+		"""
 		priority = 0 # Unused by StormLib
 		self._archives.append(storm.SFileOpenArchive(name, priority, flags))
 		self.name = name
 		self._listfile = []
 
 	def close(self):
+		"""
+		Flushes all archives in the MPQFile
+		"""
 		for mpq in self._archives:
 			storm.SFileCloseArchive(mpq)
 
 	def flush(self):
+		"""
+		Flushes all archives in the MPQFile
+		"""
 		for mpq in self._archives:
 			storm.SFileFlushArchive(mpq)
 
 	def getinfo(self, f):
+		"""
+		Returns a MPQInfo object for either a path or a MPQExtFile object.
+		"""
 		if isinstance(f, basestring):
 			f = self.open(f.replace("/", "\\"))
 		return MPQInfo(f)
 
 	def infolist(self):
+		"""
+		Returns a list of class MPQInfo instances for files in all the archives in the MPQFile.
+		"""
 		return [self.getinfo(x) for x in self.namelist()]
 
 	def is_patched(self):
+		"""
+		Returns whether at least one of the archives in the MPQFile has been patched.
+		"""
 		for mpq in self._archives:
 			if storm.SFileIsPatchedArchive(mpq, name):
 				return True
 		return False
 
 	def namelist(self):
+		"""
+		Returns a list of file names in all the archives in the MPQFile.
+		"""
 		if not self._listfile:
 			self._regenerate_listfile()
 		return self._listfile
 
 	def open(self, name, mode="r", patched=False):
+		"""
+		Return file-like object for \a name in mode \a mode.
+		If \a name is an int, it is treated as an index within the MPQFile.
+		If \a patched is True, the file will be opened fully patched, otherwise unpatched.
+		Raises a KeyError if no file matches \a name.
+		"""
 		if isinstance(name, int):
 			name = "File%08x.xxx" % (int)
 
@@ -86,10 +113,17 @@ class MPQFile(object):
 		return MPQExtFile(storm.SFileOpenFileEx(mpq, name, scope), name)
 
 	def patch(self, name, prefix=None, flags=0):
+		"""
+		Patches all archives in the MPQFile with \a name under prefix \a prefix.
+		"""
 		for mpq in self._archives:
 			storm.SFileOpenPatchArchive(mpq, name, prefix, flags)
 
 	def extract(self, member, path=".", patched=False):
+		"""
+		Extracts \a member to \a path.
+		If \a patched is True, the file will be extracted fully patched, otherwise unpatched.
+		"""
 		scope = int(bool(patched))
 		mpq = self._archive_contains(name)
 		if not mpq:
@@ -97,12 +131,18 @@ class MPQFile(object):
 		storm.SFileExtractFile(mpq, member, path, scope)
 
 	def printdir(self):
+		"""
+		Print a table of contents for the MPQFile
+		"""
 		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))
 		for x in self.infolist():
 			#date = "%d-%02d-%02d %02d:%02d:%02d" % x.date_time[:6]
 			print("%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size))
 
 	def read(self, name):
+		"""
+		Return file bytes (as a string) for \a name.
+		"""
 		if isinstance(name, MPQInfo):
 			name = name.name
 		f = self.open(name)
