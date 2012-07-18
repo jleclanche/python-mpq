@@ -14,20 +14,45 @@ class MPQFile(object):
 	ATTRIBUTES = "(attributes)"
 	LISTFILE = "(listfile)"
 
-	def __init__(self, name, flags=0):
+	def __init__(self, name=None, flags=0):
+		self._archives = []
+		if name is not None:
+			self.add_archive(name, flags)
+
+	def __contains__(self, name):
+		for mpq in self._archives:
+			if storm.SFileHasFile(mpq, name):
+				return True
+		return False
+
+	def _archive_contains(self, name):
+		for mpq in self._archives:
+			if storm.SFileHasFile(mpq, name):
+				return mpq
+
+	def _regenerate_listfile(self):
+		self._listfile = []
+		for mpq in self._archives:
+			# Here we manually open each listfile as mpq.open() would
+			# only get us the first available file
+			f = MPQExtFile(storm.SFileOpenFileEx(mpq, self.LISTFILE, 0), self.LISTFILE)
+			lf = f.read().split("\r\n")
+			# We clean the listfile first...
+			self._listfile += [x.replace("\\", "/") for x in lf if x]
+
+	def add_archive(self, name, flags=0):
 		priority = 0 # Unused by StormLib
-		self._mpq = storm.SFileOpenArchive(name, priority, flags)
+		self._archives.append(storm.SFileOpenArchive(name, priority, flags))
 		self.name = name
 		self._listfile = []
 
-	def __contains__(self, name):
-		return storm.SFileHasFile(self._mpq, name)
-
 	def close(self):
-		storm.SFileCloseArchive(self._mpq)
+		for mpq in self._archives:
+			storm.SFileCloseArchive(mpq)
 
 	def flush(self):
-		storm.SFileFlushArchive(self._mpq)
+		for mpq in self._archives:
+			storm.SFileFlushArchive(mpq)
 
 	def getinfo(self, f):
 		if isinstance(f, basestring):
@@ -38,17 +63,14 @@ class MPQFile(object):
 		return [self.getinfo(x) for x in self.namelist()]
 
 	def is_patched(self):
-		return storm.SFileIsPatchedArchive(self._mpq)
+		for mpq in self._archives:
+			if storm.SFileIsPatchedArchive(mpq, name):
+				return True
+		return False
 
 	def namelist(self):
 		if not self._listfile:
-			from cStringIO import StringIO
-			# fill the listfile
-			f = self.open("(listfile)")
-			lf = f.read().split("\r\n")
-			# Get the cleaned listfile
-			self._listfile = [x.replace("\\", "/") for x in lf if x]
-
+			self._regenerate_listfile()
 		return self._listfile
 
 	def open(self, name, mode="r", patched=True):
@@ -56,19 +78,24 @@ class MPQFile(object):
 		if isinstance(name, int):
 			name = "File%08x.xxx" % (int)
 
-		if name not in self:
-			raise KeyError("There is no item named %r in the archive" % (name))
-
 		if patched:
 			flags |= storm.SFILE_OPEN_PATCHED_FILE
 
-		return MPQExtFile(storm.SFileOpenFileEx(self._mpq, name, flags), name)
+		mpq = self._archive_contains(name)
+		if not mpq:
+			raise KeyError("There is no item named %r in the archive" % (name))
+
+		return MPQExtFile(storm.SFileOpenFileEx(mpq, name, flags), name)
 
 	def patch(self, name, prefix=None, flags=0):
-		storm.SFileOpenPatchArchive(self._mpq, name, prefix, flags)
+		for mpq in self._archives:
+			storm.SFileOpenPatchArchive(mpq, name, prefix, flags)
 
 	def extract(self, member, path="."):
-		storm.SFileExtractFile(self._mpq, member, path)
+		mpq = self._archive_contains(name)
+		if not mpq:
+			raise KeyError("There is no item named %r in the archive" % (name))
+		storm.SFileExtractFile(mpq, member, path)
 
 	def printdir(self):
 		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))
