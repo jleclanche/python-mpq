@@ -403,7 +403,7 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "lss:SFileExtractFile", &mpq, &name, &localName)) {
 		return NULL;
 	}
-	result = SFileExtractFile(mpq, name, localName);
+	result = SFileExtractFile(mpq, name, localName, SFILE_OPEN_PATCHED_FILE);
 
 	if (!result) {
 		PyErr_SetString(StormError, "Error extracting file");
