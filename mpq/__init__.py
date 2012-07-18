@@ -74,28 +74,27 @@ class MPQFile(object):
 		return self._listfile
 
 	def open(self, name, mode="r", patched=True):
-		flags = 0
 		if isinstance(name, int):
 			name = "File%08x.xxx" % (int)
 
-		if patched:
-			flags |= storm.SFILE_OPEN_PATCHED_FILE
+		scope = int(bool(patched)
 
 		mpq = self._archive_contains(name)
 		if not mpq:
 			raise KeyError("There is no item named %r in the archive" % (name))
 
-		return MPQExtFile(storm.SFileOpenFileEx(mpq, name, flags), name)
+		return MPQExtFile(storm.SFileOpenFileEx(mpq, name, scope), name)
 
 	def patch(self, name, prefix=None, flags=0):
 		for mpq in self._archives:
 			storm.SFileOpenPatchArchive(mpq, name, prefix, flags)
 
-	def extract(self, member, path="."):
+	def extract(self, member, path=".", patched=True):
+		scope = int(bool(patched))
 		mpq = self._archive_contains(name)
 		if not mpq:
 			raise KeyError("There is no item named %r in the archive" % (name))
-		storm.SFileExtractFile(mpq, member, path)
+		storm.SFileExtractFile(mpq, member, path, scope)
 
 	def printdir(self):
 		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))

@@ -398,12 +398,13 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
 	char *localName;
+	int scope;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "lss:SFileExtractFile", &mpq, &name, &localName)) {
+	if (!PyArg_ParseTuple(args, "lss:SFileExtractFile", &mpq, &name, &localName, &scope)) {
 		return NULL;
 	}
-	result = SFileExtractFile(mpq, name, localName, SFILE_OPEN_PATCHED_FILE);
+	result = SFileExtractFile(mpq, name, localName, scope);
 
 	if (!result) {
 		PyErr_SetString(StormError, "Error extracting file");
@@ -463,7 +464,8 @@ PyMODINIT_FUNC initstorm(void) {
 	DECLARE(MPQ_OPEN_CHECK_SECTOR_CRC);
 	DECLARE(MPQ_OPEN_READ_ONLY);
 
-	/* SFileOpenFileEx */
+	/* SFileOpenFileEx, SFileExtractFile */
+	DECLARE(SFILE_OPEN_FROM_MPQ);
 	DECLARE(SFILE_OPEN_PATCHED_FILE);
 
 	/* SFileGetFileInfo */
