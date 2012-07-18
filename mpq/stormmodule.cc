@@ -371,10 +371,10 @@ static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 		return NULL;
 	} else if (type == SFILE_INFO_FILETIME) {
 		size = sizeof(long);
-		result = SFileGetFileInfo(file, type, &longvalue, size);
+		result = SFileGetFileInfo(file, type, &longvalue, size, 0);
 	} else {
 		size = sizeof(int);
-		result = SFileGetFileInfo(file, type, &value, size);
+		result = SFileGetFileInfo(file, type, &value, size, 0);
 	}
 
 	if (!result) {
