@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Python wrapper around Storm C API bindings
 """
 import os.path
-import storm
+from . import storm
 from os import SEEK_SET, SEEK_CUR, SEEK_END
 
 
