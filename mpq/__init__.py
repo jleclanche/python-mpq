@@ -104,7 +104,7 @@ class MPQFile(object):
 		if isinstance(name, int):
 			name = "File%08x.xxx" % (int)
 
-		scope = int(bool(patched)
+		scope = int(bool(patched))
 
 		mpq = self._archive_contains(name)
 		if not mpq:
