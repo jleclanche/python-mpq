@@ -125,16 +125,16 @@ class MPQFile(object):
 		for mpq in self._archives:
 			storm.SFileOpenPatchArchive(mpq, name, prefix, flags)
 
-	def extract(self, member, path=".", patched=False):
+	def extract(self, name, path=".", patched=False):
 		"""
-		Extracts \a member to \a path.
+		Extracts \a name to \a path.
 		If \a patched is True, the file will be extracted fully patched, otherwise unpatched.
 		"""
 		scope = int(bool(patched))
 		mpq = self._archive_contains(name)
 		if not mpq:
 			raise KeyError("There is no item named %r in the archive" % (name))
-		storm.SFileExtractFile(mpq, member, path, scope)
+		storm.SFileExtractFile(mpq, name, path, scope)
 
 	def printdir(self):
 		"""

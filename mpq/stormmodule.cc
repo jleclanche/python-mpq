@@ -401,7 +401,7 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	int scope;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "lss:SFileExtractFile", &mpq, &name, &localName, &scope)) {
+	if (!PyArg_ParseTuple(args, "lssi:SFileExtractFile", &mpq, &name, &localName, &scope)) {
 		return NULL;
 	}
 	result = SFileExtractFile(mpq, name, localName, scope);
