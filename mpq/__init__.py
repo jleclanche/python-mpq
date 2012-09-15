@@ -14,7 +14,9 @@ class MPQFile(object):
 	LISTFILE = "(listfile)"
 
 	def __init__(self, name=None, flags=0):
+		self.paths = []
 		self._archives = []
+		self._archive_names = {}
 		if name is not None:
 			self.add_archive(name, flags)
 
@@ -23,6 +25,9 @@ class MPQFile(object):
 			if storm.SFileHasFile(mpq, name):
 				return True
 		return False
+
+	def __repr__(self):
+		return "<%s paths=%r>" % (self.__class__.__name__, self.paths)
 
 	def _archive_contains(self, name):
 		for mpq in self._archives:
@@ -44,8 +49,10 @@ class MPQFile(object):
 		Adds an archive to the MPQFile
 		"""
 		priority = 0 # Unused by StormLib
-		self._archives.append(storm.SFileOpenArchive(name, priority, flags))
-		self.name = name
+		mpq = storm.SFileOpenArchive(name, priority, flags)
+		self._archives.append(mpq)
+		self._archive_names[mpq] = name
+		self.paths.append(name)
 		self._listfile = []
 
 	def close(self):
