@@ -73,7 +73,7 @@ class MPQFile(object):
 		"""
 		Returns a MPQInfo object for either a path or a MPQExtFile object.
 		"""
-		if isinstance(f, basestring):
+		if isinstance(f, str):
 			f = self.open(f.replace("/", "\\"))
 		return MPQInfo(f)
 
