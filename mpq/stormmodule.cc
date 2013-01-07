@@ -414,6 +414,26 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject * Storm_SListFileFindFirstFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *listFile; // XXX Unused for now
+	char *mask;
+	SFILE_FIND_DATA findFileData;
+	HANDLE result;
+
+	if (!PyArg_ParseTuple(args, "lss:SListFileFindFirstFile", &mpq, &listFile, &mask)) {
+		return NULL;
+	}
+	result = SListFileFindFirstFile(mpq, NULL, mask, &findFileData);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error searching listfile");
+		return NULL;
+	}
+
+	return Py_BuildValue("ls", result, findFileData.cFileName);
+}
+
 
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open an MPQ archive."},
@@ -441,6 +461,9 @@ static PyMethodDef StormMethods[] = {
 	/* SFileVerifyFile (unimplemented) */
 	/* SFileVerifyArchive (unimplemented) */
 	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from an MPQ archive to the local drive"},
+
+	/* File searching */
+	{"SListFileFindFirstFile", Storm_SListFileFindFirstFile, METH_VARARGS, "Finds the first file matching the specification in the listfile"},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
