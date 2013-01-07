@@ -434,6 +434,24 @@ static PyObject * Storm_SListFileFindFirstFile(PyObject *self, PyObject *args) {
 	return Py_BuildValue("ls", result, findFileData.cFileName);
 }
 
+static PyObject * Storm_SListFileFindNextFile(PyObject *self, PyObject *args) {
+	HANDLE find = NULL;
+	SFILE_FIND_DATA findFileData;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "l:SListFileFindFirstFile", &find)) {
+		return NULL;
+	}
+	result = SListFileFindNextFile(find, &findFileData);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error searching for next result in listfile");
+		return NULL;
+	}
+
+	return Py_BuildValue("s", findFileData.cFileName);
+}
+
 
 static PyMethodDef StormMethods[] = {
 	{"SFileOpenArchive",  Storm_SFileOpenArchive, METH_VARARGS, "Open an MPQ archive."},
@@ -464,6 +482,7 @@ static PyMethodDef StormMethods[] = {
 
 	/* File searching */
 	{"SListFileFindFirstFile", Storm_SListFileFindFirstFile, METH_VARARGS, "Finds the first file matching the specification in the listfile"},
+	{"SListFileFindNextFile", Storm_SListFileFindNextFile, METH_VARARGS, "Finds the next file matching the specification in the listfile"},
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
