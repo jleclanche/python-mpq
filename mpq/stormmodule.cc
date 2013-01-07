@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 static PyObject *StormError;
+static PyObject *NoMoreFilesError;
 
 /*
  * Manipulating MPQ archives
@@ -445,8 +446,13 @@ static PyObject * Storm_SListFileFindNextFile(PyObject *self, PyObject *args) {
 	result = SListFileFindNextFile(find, &findFileData);
 
 	if (!result) {
-		PyErr_SetString(StormError, "Error searching for next result in listfile");
-		return NULL;
+		if (GetLastError() == ERROR_NO_MORE_FILES) {
+			PyErr_SetString(NoMoreFilesError, "");
+			return NULL;
+		} else {
+			PyErr_SetString(StormError, "Error searching for next result in listfile");
+			return NULL;
+		}
 	}
 
 	return Py_BuildValue("s", findFileData.cFileName);
@@ -539,6 +545,10 @@ MOD_INIT(storm) {
 	StormError = PyErr_NewException((char *)"storm.error", NULL, NULL);
 	Py_INCREF(StormError);
 	PyModule_AddObject(m, "error", StormError);
+
+	NoMoreFilesError = PyErr_NewException((char *)"storm.NoMoreFilesError", NULL, NULL);
+	Py_INCREF(NoMoreFilesError);
+	PyModule_AddObject(m, "NoMoreFilesError", NoMoreFilesError);
 
 	/* SFileOpenArchive */
 	DECLARE(MPQ_OPEN_NO_LISTFILE);

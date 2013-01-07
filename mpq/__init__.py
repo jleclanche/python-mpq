@@ -42,7 +42,7 @@ class MPQFile(object):
 				self._listfile.append(file.replace("\\", "/"))
 				try:
 					file = storm.SListFileFindNextFile(handle)
-				except storm.error:
+				except storm.NoMoreFilesError:
 					break
 
 	def add_archive(self, name, flags=0):
