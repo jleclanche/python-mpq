@@ -37,12 +37,13 @@ class MPQFile(object):
 	def _regenerate_listfile(self):
 		self._listfile = []
 		for mpq in self._archives:
-			# Here we manually open each listfile as mpq.open() would
-			# only get us the first available file
-			f = MPQExtFile(storm.SFileOpenFileEx(mpq, self.LISTFILE, 0), self.LISTFILE)
-			lf = f.read().split("\r\n")
-			# We clean the listfile first...
-			self._listfile += [x.replace("\\", "/") for x in lf if x]
+			handle, file = storm.SListFileFindFirstFile(mpq, "", "*")
+			while True:
+				self._listfile.append(file.replace("\\", "/"))
+				try:
+					file = storm.SListFileFindNextFile(handle)
+				except storm.error:
+					break
 
 	def add_archive(self, name, flags=0):
 		"""
