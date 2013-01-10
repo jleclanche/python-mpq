@@ -559,7 +559,6 @@ MOD_INIT(storm) {
 
 	/* SFileOpenFileEx, SFileExtractFile */
 	DECLARE(SFILE_OPEN_FROM_MPQ);
-	DECLARE(SFILE_OPEN_PATCHED_FILE);
 
 	/* SFileGetFileInfo */
 	DECLARE(SFILE_INFO_ARCHIVE_SIZE);
