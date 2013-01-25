@@ -415,10 +415,70 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject * Storm_SFileFindFirstFile(PyObject *self, PyObject *args) {
+	HANDLE mpq = NULL;
+	char *mask;
+	SFILE_FIND_DATA findFileData;
+	char *listFile; // XXX Unused for now
+	HANDLE result;
+
+	if (!PyArg_ParseTuple(args, "lss:SFileFindFirstFile", &mpq, &listFile, &mask)) {
+		return NULL;
+	}
+	result = SFileFindFirstFile(mpq, mask, &findFileData, NULL);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error searching archive");
+		return NULL;
+	}
+
+	return Py_BuildValue("ls", result, findFileData.cFileName);
+}
+
+static PyObject * Storm_SFileFindNextFile(PyObject *self, PyObject *args) {
+	HANDLE find = NULL;
+	SFILE_FIND_DATA findFileData;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "l:SFileFindFirstFile", &find)) {
+		return NULL;
+	}
+	result = SFileFindNextFile(find, &findFileData);
+
+	if (!result) {
+		if (GetLastError() == ERROR_NO_MORE_FILES) {
+			PyErr_SetString(NoMoreFilesError, "");
+			return NULL;
+		} else {
+			PyErr_SetString(StormError, "Error searching for next result in archive");
+			return NULL;
+		}
+	}
+
+	return Py_BuildValue("s", findFileData.cFileName);
+}
+
+static PyObject * Storm_SFileFindClose(PyObject *self, PyObject *args) {
+	HANDLE find = NULL;
+	bool result;
+
+	if (!PyArg_ParseTuple(args, "l:SFileFindFirstFile", &find)) {
+		return NULL;
+	}
+	result = SFileFindClose(find);
+
+	if (!result) {
+		PyErr_SetString(StormError, "Error closing archive search");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+}
+
 static PyObject * Storm_SListFileFindFirstFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-	char *listFile; // XXX Unused for now
 	char *mask;
+	char *listFile; // XXX Unused for now
 	SFILE_FIND_DATA findFileData;
 	HANDLE result;
 
@@ -468,7 +528,7 @@ static PyObject * Storm_SListFileFindClose(PyObject *self, PyObject *args) {
 	result = SListFileFindClose(find);
 
 	if (!result) {
-		PyErr_SetString(StormError, "Error closing search");
+		PyErr_SetString(StormError, "Error closing listfile search");
 		return NULL;
 	}
 
@@ -504,6 +564,9 @@ static PyMethodDef StormMethods[] = {
 	{"SFileExtractFile", Storm_SFileExtractFile, METH_VARARGS, "Extracts a file from an MPQ archive to the local drive"},
 
 	/* File searching */
+	{"SFileFindFirstFile", Storm_SFileFindFirstFile, METH_VARARGS, "Finds the first file matching the specification in the archive"},
+	{"SFileFindNextFile", Storm_SFileFindNextFile, METH_VARARGS, "Finds the next file matching the specification in the archive"},
+	{"SFileFindClose", Storm_SFileFindClose, METH_VARARGS, "Stops searching files in the archive"},
 	{"SListFileFindFirstFile", Storm_SListFileFindFirstFile, METH_VARARGS, "Finds the first file matching the specification in the listfile"},
 	{"SListFileFindNextFile", Storm_SListFileFindNextFile, METH_VARARGS, "Finds the next file matching the specification in the listfile"},
 	{"SListFileFindClose", Storm_SListFileFindClose, METH_VARARGS, "Stops searching files in the listfile"},
