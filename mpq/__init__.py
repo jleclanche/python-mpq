@@ -37,11 +37,11 @@ class MPQFile(object):
 	def _regenerate_listfile(self):
 		self._listfile = []
 		for mpq in self._archives:
-			handle, file = storm.SListFileFindFirstFile(mpq, "", "*")
+			handle, file = storm.SFileFindFirstFile(mpq, "", "*")
 			while True:
 				self._listfile.append(file.replace("\\", "/"))
 				try:
-					file = storm.SListFileFindNextFile(handle)
+					file = storm.SFileFindNextFile(handle)
 				except storm.NoMoreFilesError:
 					break
 
@@ -125,6 +125,9 @@ class MPQFile(object):
 		"""
 		for mpq in self._archives:
 			storm.SFileOpenPatchArchive(mpq, name, prefix, flags)
+
+		# invalidate the listfile
+		self._listfile = []
 
 	def extract(self, name, path=".", patched=False):
 		"""
