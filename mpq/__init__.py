@@ -147,9 +147,13 @@ class MPQFile(object):
 		Print a table of contents for the MPQFile
 		"""
 		infolist = sorted(self.infolist(), key=lambda item: item.filename.lower())
-		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))
+		longest_filename = max(infolist, key=lambda item: len(item.filename))
+		longest_filename = len(longest_filename.filename)
+		format_string = "%%-%is %%12s %%12s" % (longest_filename)
+
+		print(format_string % ("File Name", "Size", "Packed Size"))
 		for x in infolist:
-			print("%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size))
+			print(format_string % (x.filename, x.file_size, x.compress_size))
 
 	def read(self, name):
 		"""
