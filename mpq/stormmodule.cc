@@ -291,7 +291,7 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 		}
 	}
 
-	ret = Py_BuildValue("s#", buffer, bytesRead);
+	ret = Py_BuildValue("y#", buffer, bytesRead);
 	free(buffer);
 
 	return ret;
