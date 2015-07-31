@@ -356,27 +356,17 @@ static PyObject * Storm_SFileGetFileName(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
-	int type;
+	SFileInfoClass infoClass;
 	int value = 0;
-	long longvalue = 0;
 	int size;
 	bool result;
 
-	if (!PyArg_ParseTuple(args, "li:SFileGetFileInfo", &file, &type)) {
+	if (!PyArg_ParseTuple(args, "li:SFileGetFileInfo", &file, &infoClass)) {
 		return NULL;
 	}
 
-	/* Avoid calls to obsolete stuff */
-	if (type == SFILE_INFO_ARCHIVE_NAME || type == SFILE_INFO_HASH_TABLE || type == SFILE_INFO_BLOCK_TABLE) {
-		PyErr_SetString(PyExc_NotImplementedError, "Unsupported INFO_TYPE queried");
-		return NULL;
-	} else if (type == SFILE_INFO_FILETIME) {
-		size = sizeof(long);
-		result = SFileGetFileInfo(file, type, &longvalue, size, 0);
-	} else {
-		size = sizeof(int);
-		result = SFileGetFileInfo(file, type, &value, size, 0);
-	}
+	size = sizeof(int);
+	result = SFileGetFileInfo(file, infoClass, &value, size, 0);
 
 	if (!result) {
 		if (GetLastError() == ERROR_INVALID_PARAMETER) {
@@ -388,11 +378,7 @@ static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 		}
 	}
 
-	if (type == SFILE_INFO_FILETIME) {
-		return Py_BuildValue("l", longvalue);
-	} else {
-		return Py_BuildValue("i", value);
-	}
+	return Py_BuildValue("i", value);
 }
 
 static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
@@ -620,26 +606,26 @@ MOD_INIT(storm) {
 	DECLARE(MPQ_OPEN_CHECK_SECTOR_CRC);
 	DECLARE(MPQ_OPEN_READ_ONLY);
 
+	/* SFileGetFileInfo */
+	DECLARE(SFileInfoPatchChain);
+	DECLARE(SFileInfoFileEntry);
+	DECLARE(SFileInfoHashEntry);
+	DECLARE(SFileInfoHashIndex);
+	DECLARE(SFileInfoNameHash1);
+	DECLARE(SFileInfoNameHash2);
+	DECLARE(SFileInfoNameHash3);
+	DECLARE(SFileInfoLocale);
+	DECLARE(SFileInfoFileIndex);
+	DECLARE(SFileInfoByteOffset);
+	DECLARE(SFileInfoFileTime);
+	DECLARE(SFileInfoFlags);
+	DECLARE(SFileInfoFileSize);
+	DECLARE(SFileInfoCompressedSize);
+	DECLARE(SFileInfoEncryptionKey);
+	DECLARE(SFileInfoEncryptionKeyRaw);
+
 	/* SFileOpenFileEx, SFileExtractFile */
 	DECLARE(SFILE_OPEN_FROM_MPQ);
-
-	/* SFileGetFileInfo */
-	DECLARE(SFILE_INFO_ARCHIVE_SIZE);
-	DECLARE(SFILE_INFO_HASH_TABLE_SIZE);
-	DECLARE(SFILE_INFO_BLOCK_TABLE_SIZE);
-	DECLARE(SFILE_INFO_SECTOR_SIZE);
-	DECLARE(SFILE_INFO_NUM_FILES);
-	DECLARE(SFILE_INFO_STREAM_FLAGS);
-	DECLARE(SFILE_INFO_HASH_INDEX);
-	DECLARE(SFILE_INFO_LOCALEID);
-	DECLARE(SFILE_INFO_BLOCKINDEX);
-	DECLARE(SFILE_INFO_FILE_SIZE);
-	DECLARE(SFILE_INFO_COMPRESSED_SIZE);
-	DECLARE(SFILE_INFO_FLAGS);
-	DECLARE(SFILE_INFO_POSITION);
-	DECLARE(SFILE_INFO_KEY);
-	DECLARE(SFILE_INFO_KEY_UNFIXED);
-	DECLARE(SFILE_INFO_FILETIME);
 
 	#if PY_MAJOR_VERSION >= 3
 	return m;

@@ -216,8 +216,8 @@ class MPQInfo(object):
 
 	@property
 	def compress_size(self):
-		return self._file._info(storm.SFILE_INFO_COMPRESSED_SIZE)
+		return self._file._info(storm.SFileInfoCompressedSize)
 
 	@property
 	def file_size(self):
-		return self._file._info(storm.SFILE_INFO_FILE_SIZE)
+		return self._file._info(storm.SFileInfoFileSize)
