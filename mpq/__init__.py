@@ -1,9 +1,8 @@
 """
 Python wrapper around Storm C API bindings
 """
-import os.path
+import os
 from . import storm
-from os import SEEK_SET, SEEK_CUR, SEEK_END
 
 
 class MPQFile(object):
@@ -49,7 +48,7 @@ class MPQFile(object):
 		"""
 		Adds an archive to the MPQFile
 		"""
-		priority = 0 # Unused by StormLib
+		priority = 0  # Unused by StormLib
 		mpq = storm.SFileOpenArchive(name, priority, flags)
 		self._archives.append(mpq)
 		self._archive_names[mpq] = name
@@ -80,7 +79,8 @@ class MPQFile(object):
 
 	def infolist(self):
 		"""
-		Returns a list of class MPQInfo instances for files in all the archives in the MPQFile.
+		Returns a list of class MPQInfo instances for files in all the archives
+		in the MPQFile.
 		"""
 		return [self.getinfo(x) for x in self.namelist()]
 
@@ -105,7 +105,8 @@ class MPQFile(object):
 		"""
 		Return file-like object for \a name in mode \a mode.
 		If \a name is an int, it is treated as an index within the MPQFile.
-		If \a patched is True, the file will be opened fully patched, otherwise unpatched.
+		If \a patched is True, the file will be opened fully patched,
+		otherwise unpatched.
 		Raises a KeyError if no file matches \a name.
 		"""
 		if isinstance(name, int):
@@ -132,7 +133,8 @@ class MPQFile(object):
 	def extract(self, name, path=".", patched=False):
 		"""
 		Extracts \a name to \a path.
-		If \a patched is True, the file will be extracted fully patched, otherwise unpatched.
+		If \a patched is True, the file will be extracted fully patched,
+		otherwise unpatched.
 		"""
 		scope = int(bool(patched))
 		mpq = self._archive_contains(name)
@@ -146,7 +148,6 @@ class MPQFile(object):
 		"""
 		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))
 		for x in self.infolist():
-			#date = "%d-%02d-%02d %02d:%02d:%02d" % x.date_time[:6]
 			print("%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size))
 
 	def read(self, name):
@@ -181,14 +182,15 @@ class MPQExtFile(object):
 			size = self.size() - self.tell()
 		return storm.SFileReadFile(self._file, size)
 
-	def seek(self, offset, whence=SEEK_SET):
+	def seek(self, offset, whence=os.SEEK_SET):
 		storm.SFileSetFilePointer(self._file, offset, whence)
 
 	def size(self):
 		return storm.SFileGetFileSize(self._file)
 
 	def tell(self):
-		return storm.SFileSetFilePointer(self._file, 0, SEEK_CUR)
+		return storm.SFileSetFilePointer(self._file, 0, os.SEEK_CUR)
+
 
 class MPQInfo(object):
 	def __init__(self, file):
