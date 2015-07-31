@@ -146,8 +146,9 @@ class MPQFile(object):
 		"""
 		Print a table of contents for the MPQFile
 		"""
+		infolist = sorted(self.infolist(), key=lambda item: item.filename.lower())
 		print("%-85s %12s %12s" % ("File Name", "Size", "    Packed Size"))
-		for x in self.infolist():
+		for x in infolist:
 			print("%-85s %12d %12d" % (x.filename, x.file_size, x.compress_size))
 
 	def read(self, name):
