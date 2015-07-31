@@ -563,33 +563,24 @@ static PyMethodDef StormMethods[] = {
 #define storm_doc "Python bindings for StormLib"
 #define DECLARE(x) PyObject_SetAttrString(m, #x, PyLong_FromLong((long) x));
 
-#if PY_MAJOR_VERSION >= 3
-	static struct PyModuleDef moduledef = {
-		PyModuleDef_HEAD_INIT,
-		"storm", /* m_name */
-		storm_doc, /* m_doc */
-		-1, /* m_size */
-		StormMethods, /* m_methods */
-		NULL, /* m_reload */
-		NULL, /* m_traverse */
-		NULL, /* m_clear */
-		NULL, /* m_free */
-	};
-	#define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
-#else
-	#define MOD_INIT(name) PyMODINIT_FUNC init##name(void)
-#endif
+static struct PyModuleDef moduledef = {
+	PyModuleDef_HEAD_INIT,
+	"storm", /* m_name */
+	storm_doc, /* m_doc */
+	-1, /* m_size */
+	StormMethods, /* m_methods */
+	NULL, /* m_reload */
+	NULL, /* m_traverse */
+	NULL, /* m_clear */
+	NULL, /* m_free */
+};
+#define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
 
 MOD_INIT(storm) {
 	PyObject *m;
 
-	#if PY_MAJOR_VERSION >= 3
 	m = PyModule_Create(&moduledef);
 	if (m == NULL) return NULL;
-	#else
-	m = Py_InitModule3("storm", StormMethods, storm_doc);
-	if (m == NULL) return;
-	#endif
 
 	StormError = PyErr_NewException((char *)"storm.error", NULL, NULL);
 	Py_INCREF(StormError);
@@ -627,9 +618,7 @@ MOD_INIT(storm) {
 	/* SFileOpenFileEx, SFileExtractFile */
 	DECLARE(SFILE_OPEN_FROM_MPQ);
 
-	#if PY_MAJOR_VERSION >= 3
 	return m;
-	#endif
 }
 
 #ifdef __cplusplus
