@@ -35,5 +35,5 @@ setup(
 	description="Python bindings for StormLib",
 	download_url="http://github.com/hearthsim/python-mpq/tarball/master",
 	url="https://github.com/hearthsim/python-mpq",
-	version="1.0",
+	version="1.1",
 )
