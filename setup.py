@@ -25,7 +25,7 @@ module = Extension("mpq.storm",
 )
 
 setup(
-	name="python-mpq",
+	name="mpq",
 	ext_modules=[module],
 	packages=["mpq"],
 	author="Jerome Leclanche",
