@@ -286,6 +286,7 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 					PyErr_Format(StormError, "Could not read file: %i", error);
 					break;
 			}
+			free(buffer);
 			/* Emulate python's read() behaviour => we don't care if we go past EOF */
 			return NULL;
 		}
