@@ -39,5 +39,5 @@ setup(
 	download_url="http://github.com/HearthSim/python-mpq/tarball/master",
 	long_description=README,
 	url="https://github.com/HearthSim/python-mpq",
-	version="1.1",
+	version="1.1.1",
 )
