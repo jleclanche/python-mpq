@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 from distutils.core import setup, Extension
 
 
@@ -12,6 +13,8 @@ CLASSIFIERS = [
 	"Programming Language :: Python :: 3.4",
 	"Programming Language :: Python :: 3.5",
 ]
+
+README = open(os.path.join(os.path.dirname(__file__), "README.md")).read()
 
 DEBUG = False
 compile_args = []
@@ -34,6 +37,7 @@ setup(
 	classifiers=CLASSIFIERS,
 	description="Python bindings for StormLib",
 	download_url="http://github.com/HearthSim/python-mpq/tarball/master",
+	long_description=README,
 	url="https://github.com/HearthSim/python-mpq",
 	version="1.1",
 )
