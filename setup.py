@@ -33,7 +33,7 @@ setup(
 	author_email="jerome@leclan.ch",
 	classifiers=CLASSIFIERS,
 	description="Python bindings for StormLib",
-	download_url="http://github.com/hearthsim/python-mpq/tarball/master",
-	url="https://github.com/hearthsim/python-mpq",
+	download_url="http://github.com/HearthSim/python-mpq/tarball/master",
+	url="https://github.com/HearthSim/python-mpq",
 	version="1.1",
 )
