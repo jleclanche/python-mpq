@@ -395,8 +395,13 @@ static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	result = SFileExtractFile(mpq, name, localName, scope);
 
 	if (!result) {
-		PyErr_SetString(StormError, "Error extracting file");
-		return NULL;
+		if (GetLastError() == ERROR_UNKNOWN_FILE_KEY) {
+			PyErr_Format(StormError, "Error extracting file: File Key `%s' unknown", name);
+			return NULL;
+		} else {
+			PyErr_Format(StormError, "Error extracting file: %i", GetLastError());
+			return NULL;
+		}
 	}
 
 	Py_RETURN_NONE;
