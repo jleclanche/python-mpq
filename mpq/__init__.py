@@ -89,7 +89,7 @@ class MPQFile(object):
 		Returns whether at least one of the archives in the MPQFile has been patched.
 		"""
 		for mpq in self._archives:
-			if storm.SFileIsPatchedArchive(mpq, name):
+			if storm.SFileIsPatchedArchive(mpq):
 				return True
 		return False
 
