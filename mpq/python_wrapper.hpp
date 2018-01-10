@@ -19,6 +19,7 @@ namespace python
       mk_tuple_char_for_type ('i', int);
       mk_tuple_char_for_type ('I', unsigned int);
       mk_tuple_char_for_type ('k', unsigned long);
+      mk_tuple_char_for_type ('K', unsigned long long);
       mk_tuple_char_for_type ('s', char*);
       mk_tuple_char_for_type ('s', char const*);
 

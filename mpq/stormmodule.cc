@@ -208,20 +208,24 @@ static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 
-	return python::build_value(sizeLow | sizeHigh);
+	return python::build_value ( (((uint64_t)sizeLow  << 0)  & 0x00000000FFFFFFFF)
+	                           | (((uint64_t)sizeHigh << 32) & 0xFFFFFFFF00000000)
+	                           );
 }
 
 static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
-	unsigned long offset = 0;
+	uint64_t offset = 0;
 	DWORD whence;
 
 	if (!python::parse_tuple(args, "SFileSetFilePointer", &file, &offset, &whence)) {
 		return NULL;
 	}
 
-	LONG posLow = (LONG) offset;
-	LONG posHigh = (LONG)(offset >> 32);
+	//! \note The StormLib API is broken here: LONG is signed, while it surely
+	//! should be unsigned.
+	LONG posLow =  (offset & 0x00000000FFFFFFFF) >> 0;
+	LONG posHigh = (offset & 0xFFFFFFFF00000000) >> 32;
 	DWORD result = SFileSetFilePointer(file, posLow, &posHigh, whence);
 
 	if (result == SFILE_INVALID_SIZE) {
@@ -244,7 +248,9 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 
-	return python::build_value(result | posHigh);
+	return python::build_value ( (((uint64_t)result  << 0)  & 0x00000000FFFFFFFF)
+	                           | (((uint64_t)posHigh << 32) & 0xFFFFFFFF00000000)
+	                           );
 }
 
 static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
