@@ -257,7 +257,6 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	DWORD size;
 	DWORD bytesRead;
-	void * overlapped = 0;
 
 	if (!python::parse_tuple(args, "SFileReadFile", &file, &size)) {
 		return NULL;
@@ -265,7 +264,7 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 
 	std::vector<char> buffer (size);
 
-	bool result = SFileReadFile(file, buffer.data(), size, &bytesRead, &overlapped);
+	bool result = SFileReadFile(file, buffer.data(), size, &bytesRead, NULL);
 
 	if (!result) {
 		DWORD error = GetLastError();
