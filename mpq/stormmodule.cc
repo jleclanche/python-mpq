@@ -286,6 +286,7 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 		}
 	}
 
+	assert (bytesRead <= (DWORD)std::numeric_limits<int>::max());
 	return python::build_value(std::pair<char*, int> (buffer.data(), bytesRead));
 }
 
