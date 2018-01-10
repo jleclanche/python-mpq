@@ -4,6 +4,8 @@
 
 #include "python_wrapper.hpp"
 
+#include <vector>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -247,19 +249,17 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
-	char * buffer;
 	DWORD size;
 	DWORD bytesRead;
 	void * overlapped = 0;
-	PyObject * ret;
 
 	if (!python::parse_tuple(args, "SFileReadFile", &file, &size)) {
 		return NULL;
 	}
 
-	buffer = (char*)malloc(size);
+	std::vector<char> buffer (size);
 
-	bool result = SFileReadFile(file, buffer, size, &bytesRead, &overlapped);
+	bool result = SFileReadFile(file, buffer.data(), size, &bytesRead, &overlapped);
 
 	if (!result) {
 		DWORD error = GetLastError();
@@ -275,16 +275,12 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 					PyErr_Format(StormError, "Could not read file: %i", error);
 					break;
 			}
-			free(buffer);
 			/* Emulate python's read() behaviour => we don't care if we go past EOF */
 			return NULL;
 		}
 	}
 
-	ret = python::build_value(std::pair<char*, int> (buffer, bytesRead));
-	free(buffer);
-
-	return ret;
+	return python::build_value(std::pair<char*, int> (buffer.data(), bytesRead));
 }
 
 static PyObject * Storm_SFileCloseFile(PyObject *self, PyObject *args) {
