@@ -17,8 +17,8 @@ static PyObject *NoMoreFilesError;
 
 static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-	char *name;
-	int priority;
+	TCHAR *name;
+	DWORD priority;
 	int flags;
 
 	if (!python::parse_tuple(args, "SFileOpenArchive", &name, &priority, &flags)) {
@@ -27,7 +27,7 @@ static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 	bool result = SFileOpenArchive(name, priority, MPQ_OPEN_READ_ONLY, &mpq);
 
 	if (!result) {
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		switch (error) {
 			case ERROR_FILE_NOT_FOUND:
 				PyErr_Format(PyExc_IOError, "Could not open archive: No such file or directory: %s", name);
@@ -45,12 +45,12 @@ static PyObject * Storm_SFileOpenArchive(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileAddListFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-	char *name;
+	TCHAR *name;
 
 	if (!python::parse_tuple(args, "SFileAddListFile", &mpq, &name)) {
 		return NULL;
 	}
-	bool result = SFileAddListFile(mpq, name);
+	int result = SFileAddListFile(mpq, name);
 
 	if (result != ERROR_SUCCESS) {
 		PyErr_SetString(StormError, "Error adding listfile");
@@ -94,7 +94,7 @@ static PyObject * Storm_SFileCloseArchive(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileCompactArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-	char *listfile;
+	TCHAR *listfile;
 	bool reserved = 0; /* Unused */
 
 	if (!python::parse_tuple(args, "SFileCompactArchive", &mpq, &listfile)) {
@@ -116,9 +116,9 @@ static PyObject * Storm_SFileCompactArchive(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileOpenPatchArchive(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
-	char *name;
+	TCHAR *name;
 	char *prefix;
-	int flags;
+	DWORD flags;
 
 	if (!python::parse_tuple(args, "SFileOpenPatchArchive", &mpq, &name, &prefix, &flags)) {
 		return NULL;
@@ -126,7 +126,7 @@ static PyObject * Storm_SFileOpenPatchArchive(PyObject *self, PyObject *args) {
 	bool result = SFileOpenPatchArchive(mpq, name, prefix, flags);
 
 	if (!result) {
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		switch (error) {
 			case ERROR_INVALID_HANDLE:
 				PyErr_SetString(PyExc_TypeError, "Could not patch archive: Invalid handle");
@@ -176,7 +176,7 @@ static PyObject * Storm_SFileIsPatchedArchive(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileOpenFileEx(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
-	int scope;
+	DWORD scope;
 	HANDLE file = NULL;
 
 	if (!python::parse_tuple(args, "SFileOpenFileEx", &mpq, &name, &scope)) {
@@ -194,13 +194,12 @@ static PyObject * Storm_SFileOpenFileEx(PyObject *self, PyObject *args) {
 
 static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
-	unsigned int sizeLow;
-	unsigned int sizeHigh;
 
 	if (!python::parse_tuple(args, "SFileGetFileSize", &file)) {
 		return NULL;
 	}
-	sizeLow = SFileGetFileSize(file, &sizeHigh);
+	DWORD sizeHigh;
+	DWORD sizeLow = SFileGetFileSize(file, &sizeHigh);
 
 	if (sizeLow == SFILE_INVALID_SIZE) {
 		PyErr_SetString(StormError, "Error getting file size");
@@ -213,20 +212,18 @@ static PyObject * Storm_SFileGetFileSize(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	unsigned long offset = 0;
-	int whence;
-	int posLow = 0;
-	int posHigh = 0;
+	DWORD whence;
 
 	if (!python::parse_tuple(args, "SFileSetFilePointer", &file, &offset, &whence)) {
 		return NULL;
 	}
 
-	posLow = (unsigned int) offset;
-	posHigh = (unsigned int)(offset >> 32);
-	unsigned int result = SFileSetFilePointer(file, posLow, &posHigh, whence);
+	LONG posLow = (LONG) offset;
+	LONG posHigh = (LONG)(offset >> 32);
+	DWORD result = SFileSetFilePointer(file, posLow, &posHigh, whence);
 
 	if (result == SFILE_INVALID_SIZE) {
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		switch (error) {
 			case ERROR_INVALID_HANDLE:
 				PyErr_SetString(PyExc_TypeError, "Could not seek within file: Invalid handle");
@@ -251,8 +248,8 @@ static PyObject * Storm_SFileSetFilePointer(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	char * buffer;
-	unsigned int size;
-	unsigned int bytesRead;
+	DWORD size;
+	DWORD bytesRead;
 	void * overlapped = 0;
 	PyObject * ret;
 
@@ -265,7 +262,7 @@ static PyObject * Storm_SFileReadFile(PyObject *self, PyObject *args) {
 	bool result = SFileReadFile(file, buffer, size, &bytesRead, &overlapped);
 
 	if (!result) {
-		int error = GetLastError();
+		DWORD error = GetLastError();
 		if (error != ERROR_HANDLE_EOF) {
 			switch (error) {
 				case ERROR_INVALID_HANDLE:
@@ -347,14 +344,13 @@ static PyObject * Storm_SFileGetFileName(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 	HANDLE file = NULL;
 	SFileInfoClass infoClass;
-	int value = 0;
-	int size;
 
 	if (!python::parse_tuple(args, "SFileGetFileInfo", &file, &infoClass)) {
 		return NULL;
 	}
 
-	size = sizeof(int);
+	int value = 0;
+	DWORD size = sizeof(value);
 	bool result = SFileGetFileInfo(file, infoClass, &value, size, 0);
 
 	if (!result) {
@@ -373,8 +369,8 @@ static PyObject * Storm_SFileGetFileInfo(PyObject *self, PyObject *args) {
 static PyObject * Storm_SFileExtractFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *name;
-	char *localName;
-	int scope;
+	TCHAR *localName;
+	DWORD scope;
 
 	if (!python::parse_tuple(args, "SFileExtractFile", &mpq, &name, &localName, &scope)) {
 		return NULL;
@@ -398,7 +394,7 @@ static PyObject * Storm_SFileFindFirstFile(PyObject *self, PyObject *args) {
 	HANDLE mpq = NULL;
 	char *mask;
 	SFILE_FIND_DATA findFileData;
-	char *listFile; // XXX Unused for now
+	TCHAR *listFile; // XXX Unused for now
 
 	if (!python::parse_tuple(args, "SFileFindFirstFile", &mpq, &listFile, &mask)) {
 		return NULL;
