@@ -1,5 +1,4 @@
 # python-mpq
-[![Build Status](https://api.travis-ci.org/HearthSim/python-mpq.svg?branch=master)](https://travis-ci.org/HearthSim/python-mpq)
 
 Python bindings for Ladislav Zezula's [StormLib](http://zezula.net/en/mpq/stormlib.html).
 
